@@ -32,8 +32,8 @@ inv_install_apache_enable_evasive: true
 inv_install_apache_enable_pagespeed: true
 inv_install_apache_enable_prefork: true
 
-inv_install_apache_security_core_version: "3.3.5"
-inv_install_apache_security_version: "3.0.11"
+inv_install_apache_security_core_version: "3.3.0"
+inv_install_apache_security_version: "3.0.10"
 inv_install_apache_remove_all_vhosts: true
 
 
@@ -61,9 +61,9 @@ inv_add_apache_confs_configurations_cert_bundles:
     type: "CA"
     src: "/tmp/My-Local-Ansible-Intermediate-CA-2.pem.crt"
 
-  - name: "my-sonarqube-server.domain.tld"
+  - name: "my-jenkins-server.domain.tld"
     type: "cert"
-    src: "/tmp/my-sonarqube-server.domain.tld.zip"
+    src: "/tmp/my-jenkins-server.domain.tld.zip"
     dest: "/etc/apache2/ssl"
     #src_user: "myUser"
     #src_password: "secretPassword"
@@ -73,17 +73,17 @@ inv_add_apache_confs_configurations_cert_bundles:
 
 inv_add_apache_confs_configurations:
   - server:
-      name: "my-sonarqube-server.domain.tld"
+      name: "my-jenkins-server.domain.tld"
       aliases:
         - "localhost"
         - "127.0.0.1"
       webmaster: "{{ inv_add_apache_confs_webmaster }}"
     ssl:
       enabled: true
-      key: "{{ inv_add_apache_confs_ssl_files_path }}/my-sonarqube-server.domain.tld/my-sonarqube-server.domain.tld.pem.key"
-      crt: "{{ inv_add_apache_confs_ssl_files_path }}/my-sonarqube-server.domain.tld/my-sonarqube-server.domain.tld.pem.crt"
+      key: "{{ inv_add_apache_confs_ssl_files_path }}/my-jenkins-server.domain.tld/my-jenkins-server.domain.tld.pem.key"
+      crt: "{{ inv_add_apache_confs_ssl_files_path }}/my-jenkins-server.domain.tld/my-jenkins-server.domain.tld.pem.crt"
     proxy:
-      url: "http://127.0.0.1:9000"
+      url: "http://127.0.0.1:8080"
       pass: "/"
     security:
       disabled: false
