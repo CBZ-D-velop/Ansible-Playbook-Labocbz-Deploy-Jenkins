@@ -1,0 +1,5 @@
+---
+- name: "Include labocbz.deploy_jenkins playbook"
+  tags:
+      - "labocbz.deploy_jenkins"
+  ansible.builtin.import_playbook: "../../playbook.yml"
