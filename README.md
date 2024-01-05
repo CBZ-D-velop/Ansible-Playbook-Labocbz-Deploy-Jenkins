@@ -20,7 +20,15 @@
 
 An Ansible playbook to deploy and configure a Jenkins server on your hosts.
 
+This Ansible playbook orchestrates the installation of Jenkins, Docker, and Apache2. Notably, Jenkins lacks native SSL support, making the presence of an SSL reverse proxy highly recommended, although its installation is not mandatory in this playbook. Additionally, Apache2 installation is conditional based on a boolean variable.
+
+If remote certificates are available, the playbook can download and install them for Apache2. Security measures, including mod evasive, mod qos, WAF, and optimization configurations, are also managed.
+
 ## Deployment diagramm
+
+![](./assets/Ansible-Playbook-Labocbz-Deploy-Jenkins.drawio.svg)
+
+Here is a possible deployment example with this playbook. The components involved are Apache2, Jenkins, Docker, and Watchtower. We observe that clients access Jenkins through Apache2, which acts as an SSL/TLS proxy.
 
 ## Tests and simulations
 
@@ -93,6 +101,12 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2024-01-04: First Init
 
 * First init of this playbook with the bootstrap_playbook playbook by Lord Robin Crombez
+
+### 2024-01-05: 
+
+* Playbook install Apache2, Docker, Jenkins
+* Need to get the Jenkins password on log after isntall for first launch
+* You can protect your Jenkins behind Apache2
 
 ## Authors
 

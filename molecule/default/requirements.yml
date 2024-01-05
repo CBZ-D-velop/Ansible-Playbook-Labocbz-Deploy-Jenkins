@@ -13,7 +13,7 @@
 
 - name: "labocbz.install_jenkins"
   src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Install-Jenkins.git"
-  version: "develop"
+  version: "1.0"
 
 - name: "labocbz.install_apache"
   src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Install-Apache.git"
