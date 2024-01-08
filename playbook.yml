@@ -158,3 +158,46 @@
             jump: "DROP"
             source: "! 127.0.0.1"
             comment: "Force external user to use jenkins"
+
+- name: "Deploy Jenkins Agents"
+  hosts: "{{ tower_env | default([]) }}"
+  gather_facts: true
+  become: true
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - name: "Deploy Jenkins Agent"
+      when: inv_install_jenkins_agent | default(false)
+      block:
+        - name: "Include labocbz.prepare_host"
+          tags:
+            - "labocbz.prepare_host"
+          ansible.builtin.include_role:
+            name: "labocbz.prepare_host"
+
+        - name: "Include labocbz.install_java"
+          tags:
+          - "labocbz.install_java"
+          vars:
+            java_version: "{{ inv_java_version }}"
+            java_cpu_architecture: "{{ inv_java_cpu_architecture }}"
+            java_version_is_default: true
+          ansible.builtin.include_role:
+            name: "labocbz.install_java"
+
+        - name: "Include labocbz.install_jenkins_agent"
+          tags:
+            - "labocbz.install_jenkins_agent"
+          vars:
+            install_jenkins_agent_user: "{{ inv_install_jenkins_agent_user }}"
+            install_jenkins_agent_group: "{{ inv_install_jenkins_agent_group }}"
+            install_jenkins_agent_password: "{{ inv_install_jenkins_agent_password }}"
+            install_jenkins_agent_name: "{{ inv_install_jenkins_agent_name }}"
+            install_jenkins_agent_home: "{{ inv_install_jenkins_agent_home }}"
+            install_jenkins_agent_master_remote: "{{ inv_install_jenkins_agent_master_remote }}"
+            install_jenkins_agent_jar: "{{ inv_install_jenkins_agent_jar }}"
+            install_jenkins_agent_secret: "{{ inv_install_jenkins_agent_secret }}"
+            install_jenkins_agent_log_path: "{{ inv_install_jenkins_agent_log_path }}"
+          ansible.builtin.include_role:
+            name: "labocbz.install_jenkins_agent"
