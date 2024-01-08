@@ -27,8 +27,8 @@
   src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Add-Logrotate-Confs.git"
   version: "2.2"
 
-- name: "labocbz.add_jenkins_agent"
-  src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Add-Jenkins-Agent.git"
+- name: "labocbz.install_jenkins_agent"
+  src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Install-Jenkins-Agent.git"
   version: "develop"
 
 - name: "labocbz.install_java"
