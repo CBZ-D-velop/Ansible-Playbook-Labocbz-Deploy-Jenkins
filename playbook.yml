@@ -1,5 +1,5 @@
 ---
-- name: "Deploy Jenkins"
+- name: "Deploy Dokcer"
   hosts: "{{ tower_env | default([]) }}"
   gather_facts: true
   become: true
@@ -45,6 +45,14 @@
           ansible.builtin.include_role:
             name: "labocbz.install_docker"
 
+- name: "Deploy Jenkins"
+  hosts: "{{ tower_env | default([]) }}"
+  gather_facts: true
+  become: true
+  become_method: sudo
+  become_user: root
+
+  tasks:
     - name: "Install Jenkins"
       when: inv_install_jenkins | default(false)
       block:
