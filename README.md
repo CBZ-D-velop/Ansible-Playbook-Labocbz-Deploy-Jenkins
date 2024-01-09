@@ -20,15 +20,19 @@
 
 An Ansible playbook to deploy and configure a Jenkins server on your hosts.
 
-This Ansible playbook orchestrates the installation of Jenkins, Docker, and Apache2. Notably, Jenkins lacks native SSL support, making the presence of an SSL reverse proxy highly recommended, although its installation is not mandatory in this playbook. Additionally, Apache2 installation is conditional based on a boolean variable.
+This Ansible playbook orchestrates the installation of Jenkins, Docker, Apache2, and Jenkins agents. Notably, Jenkins lacks native SSL support, making the presence of an SSL reverse proxy highly recommended, although its installation is not mandatory in this playbook. Additionally, Apache2 installation is conditional based on a boolean variable.
 
 If remote certificates are available, the playbook can download and install them for Apache2. Security measures, including mod evasive, mod qos, WAF, and optimization configurations, are also managed.
+
+For Jenkins agents, a dedicated Ansible role is employed. This role simplifies the installation of Jenkins agents on host machines, handling file architecture for job execution and supporting CI workflows focused on Docker. It allows explicit user definition, start-up as a service, and the addition of security options such as basic authentication, CA certificates, etc. It's crucial to have Java installed, and Docker if needed for Docker-centric CI workflows.
+
+In summary, this comprehensive Ansible playbook addresses the installation and configuration of Jenkins, Docker, Apache2, and Jenkins agents, providing flexibility and security measures tailored to specific deployment requirements.
 
 ## Deployment diagramm
 
 ![](./assets/Ansible-Playbook-Labocbz-Deploy-Jenkins.drawio.svg)
 
-Here is a possible deployment example with this playbook. The components involved are Apache2, Jenkins, Docker, and Watchtower. We observe that clients access Jenkins through Apache2, which acts as an SSL/TLS proxy.
+Here is a possible deployment example with this playbook. The components involved are Apache2, Jenkins, Docker, and Watchtower. We observe that clients access Jenkins through Apache2, which acts as an SSL/TLS proxy. An agent installed on the second host, communication are donne with SSL and TCP socket.
 
 ## Tests and simulations
 

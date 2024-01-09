@@ -1,0 +1,42 @@
+---
+inv_install_jenkins_agent: true
+
+inv_install_jenkins_agent_user: "jenkins"
+inv_install_jenkins_agent_group: "jenkins"
+inv_install_jenkins_agent_password: "PASSWORDDDDD"
+inv_install_jenkins_agent_name: "Jenkins-Agent-1"
+inv_install_jenkins_agent_home: "/home/{{ inv_install_jenkins_agent_user }}/{{ inv_install_jenkins_agent_name | lower }}"
+inv_install_jenkins_agent_master_remote: "https://jenkins.domain.tld"
+inv_install_jenkins_agent_jar: "{{ inv_install_jenkins_agent_master_remote }}/jnlpJars/agent.jar"
+inv_install_jenkins_agent_secret: "XXXXXXXX"
+inv_install_jenkins_agent_log_path: "/var/log/jenkins-agent/{{ inv_install_jenkins_agent_name }}"
+
+inv_install_jenkins_agent_docker_based: true
+inv_install_jenkins_agent_ca: "{{ inv_install_jenkins_agent_home }}/ssl/my-jenkins-server.domain.tld/ca-chain.pem.crt"
+inv_install_jenkins_agent_https_check: true
+inv_install_jenkins_agent_basic_auth_login: "myuser"
+inv_install_jenkins_agent_basic_auth_password: "password"
+inv_install_jenkins_agent_basic_auth: "{{ inv_install_jenkins_agent_basic_auth_login }}:{{ inv_install_jenkins_agent_basic_auth_password }}"
+
+inv_install_jenkins_agent_cert_bundles:
+  - name: "My-Local-Ansible-Root-CA.pem.crt"
+    type: "CA"
+    src: "/tmp/My-Local-Ansible-Root-CA.pem.crt"
+
+  - name: "My-Local-Ansible-Intermediate-CA-1.pem.crt"
+    type: "CA"
+    src: "/tmp/My-Local-Ansible-Intermediate-CA-1.pem.crt"
+
+  - name: "My-Local-Ansible-Intermediate-CA-2.pem.crt"
+    type: "CA"
+    src: "/tmp/My-Local-Ansible-Intermediate-CA-2.pem.crt"
+
+  - name: "my-jenkins-server.domain.tld"
+    type: "cert"
+    src: "/tmp/my-jenkins-server.domain.tld.zip"
+    dest: "{{ inv_install_jenkins_agent_home }}/ssl"
+    #src_user: "myUser"
+    #src_password: "secretPassword"
+    dest_user: "{{ inv_install_jenkins_agent_user }}"
+    dest_group: "{{ inv_install_jenkins_agent_group }}"
+    dest_mode: "0700"
