@@ -1,81 +1,20 @@
 ---
 # Don't forget to keep this file updated
 # molecule/<scenario>/verify.yml
-- name: "Verify DOCKER"
-  hosts: "all:&DOCKER"
+- name: "Verify"
+  hosts: "local"
   gather_facts: false
   tasks:
 
-    - name: "Get Docker service current state"
-      register: install_docker_service_status
-      failed_when: not (install_docker_service_status.status.ActiveState == 'active' or
-        install_docker_service_status.status.ActiveState == 'activating' or
-        install_docker_service_status.status.ActiveState == 'inactive')
-      ansible.builtin.systemd:
-        name: "docker"
-
-    - name: "Check docker-compose command response"
-      register: output
-      changed_when: output.rc != 0
-      failed_when: output.rc != 0
-      ansible.builtin.command: "docker-compose -v"
-
-    - name: "Check Docker insecure registries"
-      when: inv_install_docker_insecure_registries is defined
+    - name: "Verify Apache"
+      when: inv_install_jenkins_agent | default(false)
       block:
-        - name: "Check Docker registries file"
-          register: file_check
-          failed_when: not file_check.stat.exists
-          ansible.builtin.stat:
-            path: "/etc/docker/daemon.json"
+        - name: "Get Apache2 service current state"
+          register: install_apache__service_status
+          failed_when: not install_apache__service_status.status.ActiveState == 'active'
+          ansible.builtin.systemd:
+            name: "apache2"
 
-        - name: "Check if insecure registries are in the /etc/docker/daemon.json file"
-          loop: "{{ inv_install_docker_insecure_registries }}"
-          loop_control:
-            loop_var: registry
-          register: registry_state
-          failed_when: registry_state.rc != 0
-          changed_when: registry_state.rc != 0
-          ansible.builtin.command: "grep -q {{ registry }} /etc/docker/daemon.json"
-
-# Don't forget to keep this file updated
-# molecule/<scenario>/verify.yml
-- name: "Verify APACHE2"
-  hosts: "all:&APACHE2"
-  gather_facts: false
-  tasks:
-
-    - name: "Get Apache2 service current state"
-      register: install_apache_service_status
-      failed_when: not install_apache_service_status.status.ActiveState == 'active'
-      ansible.builtin.systemd:
-        name: "apache2"
-
-    - name: "Check Apache2 folders and conf"
-      loop:
-        - "/etc/apache2/apache2.conf"
-        - "/etc/apache2/ports.conf"
-      loop_control:
-        loop_var: folder_path
-      register: folder_check
-      failed_when: not folder_check.stat.exists
-      ansible.builtin.stat:
-        path: "{{ folder_path }}"
-
-    - name: "Check Apache2 HTTP connectivity"
-      ansible.builtin.wait_for:
-        host: "{{ inventory_hostname }}"
-        port: "{{ inv_install_apache_http_listen_port }}"
-        timeout: 120
-
-    - name: "Check Apache2 HTTPS connectivity"
-      ansible.builtin.wait_for:
-        host: "{{ inventory_hostname }}"
-        port: "{{ inv_install_apache_https_listen_port }}"
-        timeout: 120
-
-    - name: "Check Apache2 default configuration"
-      block:
         - name: "Check Apache2 folders and conf"
           loop:
             - "/etc/apache2/apache2.conf"
@@ -87,128 +26,170 @@
           ansible.builtin.stat:
             path: "{{ folder_path }}"
 
-        - name: "Check Apache2 HTTP and conf"
-          loop: "{{ inv_add_apache_confs_configurations }}"
-          loop_control:
-            loop_var: vhost
-          register: folder_check
-          failed_when: not folder_check.stat.exists
-          ansible.builtin.stat:
-            path: "{{ inv_add_apache_confs_conf_path }}/{{ vhost.server.name }}-HTTP.conf"
-
-        - name: "Check Apache2 HTTPS and conf"
-          loop: "{{ inv_add_apache_confs_configurations }}"
-          loop_control:
-            loop_var: vhost
-          register: folder_check
-          when: vhost.ssl
-          failed_when: not folder_check.stat.exists
-          ansible.builtin.stat:
-            path: "{{ inv_add_apache_confs_conf_path }}/{{ vhost.server.name }}-HTTPS.conf"
-
-        - name: "Check HTTPS conf: certs"
-          loop: "{{ inv_add_apache_confs_configurations }}"
-          loop_control:
-            loop_var: vhost
-          register: folder_check
-          when: vhost.ssl.enabled | default(false)
-          failed_when: not folder_check.stat.exists
-          ansible.builtin.stat:
-            path: "{{ vhost.ssl.crt }}"
-
-        - name: "Check HTTPS conf: keys"
-          loop: "{{ inv_add_apache_confs_configurations }}"
-          loop_control:
-            loop_var: vhost
-          register: folder_check
-          when: vhost.ssl.enabled | default(false)
-          failed_when: not folder_check.stat.exists
-          ansible.builtin.stat:
-            path: "{{ vhost.ssl.key }}"
-
-    - name: "Check Apache2 webserver"
-      block:
-        - name: "Check Apache2 connectivity"
+        - name: "Check Apache2 HTTP connectivity"
           ansible.builtin.wait_for:
             host: "{{ inventory_hostname }}"
-            port: "{{ inv_add_apache_confs_http_listen_port }}"
+            port: "{{ inv_install_apache__http_listen_port }}"
             timeout: 120
 
-        - name: "Check default vhost on HTTP"
-          register: result
-          failed_when: not (result.status != 200 or result.status == -1)
-          ansible.builtin.uri:
-            url: "http://{{ inventory_hostname }}:{{ inv_add_apache_confs_http_listen_port }}/"
-            method: "GET"
+        - name: "Check Apache2 HTTPS connectivity"
+          ansible.builtin.wait_for:
+            host: "{{ inventory_hostname }}"
+            port: "{{ inv_install_apache__https_listen_port }}"
+            timeout: 120
 
-        - name: "Check default vhost on HTTPS"
-          register: result
-          failed_when: not (result.status != 200 or result.status == -1)
-          ansible.builtin.uri:
-            url: "https://{{ inventory_hostname }}:{{ inv_add_apache_confs_https_listen_port }}/"
-            method: "GET"
+        - name: "Get Apache2 service current state"
+          register: apache_service_status
+          failed_when: not apache_service_status.status.ActiveState == 'active'
+          ansible.builtin.systemd:
+            name: "apache2"
 
-# Don't forget to keep this file updated
-# molecule/<scenario>/verify.yml
-- name: "Verify JAVA"
-  hosts: "all:&JAVA"
-  gather_facts: false
-  tasks:
-
-    - name: "Verify Java -version, with alternative / default"
-      register: java_version_output
-      changed_when: java_version_output.rc != 0
-      failed_when: "'build {{ inv_java_version }}' not in java_version_output.stderr"
-      ansible.builtin.command: java -version
-
-    - name: "Check Java versions {{ inv_java_version }}/8 binaires files"
-      block:
-        - name: "Check Java java-{{ inv_java_version }} custom binaries"
-          loop:
-            - "/usr/bin"
-            - "/bin"
-          loop_control:
-            loop_var: java_path
-          register: file_check
-          failed_when: not file_check.stat.exists
-          ansible.builtin.stat:
-            path: "{{ java_path }}/java-{{ inv_java_version }}"
-
-        - name: "Check Java java-8 custom binaries"
+        - name: "Check Apache2 default configuration"
           block:
-          - name: "Check Java java-8 custom binaries"
-            loop:
-              - "/usr/bin"
-              - "/bin"
-            loop_control:
-              loop_var: java_path
-            register: file_check
-            failed_when: not file_check.stat.exists
-            ansible.builtin.stat:
-              path: "{{ java_path }}/java-8"
+            - name: "Check Apache2 folders and conf"
+              loop:
+                - "/etc/apache2/apache2.conf"
+                - "/etc/apache2/ports.conf"
+              loop_control:
+                loop_var: folder_path
+              register: folder_check
+              failed_when: not folder_check.stat.exists
+              ansible.builtin.stat:
+                path: "{{ folder_path }}"
 
-    - name: "Verify Java -version, with custom binaries"
+            - name: "Check Apache2 HTTP and conf"
+              loop: "{{ inv_add_apache_confs__configurations }}"
+              loop_control:
+                loop_var: vhost
+              register: folder_check
+              failed_when: not folder_check.stat.exists
+              ansible.builtin.stat:
+                path: "{{ inv_add_apache_confs__conf_path }}/{{ vhost.server.name }}-HTTP.conf"
+
+            - name: "Check Apache2 HTTPS and conf"
+              loop: "{{ inv_add_apache_confs__configurations }}"
+              loop_control:
+                loop_var: vhost
+              register: folder_check
+              when: vhost.ssl
+              failed_when: not folder_check.stat.exists
+              ansible.builtin.stat:
+                path: "{{ inv_add_apache_confs__conf_path }}/{{ vhost.server.name }}-HTTPS.conf"
+
+            - name: "Check HTTPS conf: certs"
+              loop: "{{ inv_add_apache_confs__configurations }}"
+              loop_control:
+                loop_var: vhost
+              register: folder_check
+              when: vhost.ssl.enabled | default(false)
+              failed_when: not folder_check.stat.exists
+              ansible.builtin.stat:
+                path: "{{ vhost.ssl.crt }}"
+
+            - name: "Check HTTPS conf: keys"
+              loop: "{{ inv_add_apache_confs__configurations }}"
+              loop_control:
+                loop_var: vhost
+              register: folder_check
+              when: vhost.ssl.enabled | default(false)
+              failed_when: not folder_check.stat.exists
+              ansible.builtin.stat:
+                path: "{{ vhost.ssl.key }}"
+
+        - name: "Check Apache2 webserver"
+          block:
+            - name: "Check Apache2 connectivity"
+              ansible.builtin.wait_for:
+                host: "{{ inventory_hostname }}"
+                port: "{{ inv_add_apache_confs__http_listen_port }}"
+                timeout: 120
+
+            - name: "Check default vhost on HTTP"
+              register: result
+              failed_when: not (result.status != 200 or result.status == -1)
+              ansible.builtin.uri:
+                url: "http://{{ inventory_hostname }}:{{ inv_add_apache_confs__http_listen_port }}/"
+                method: "GET"
+
+            - name: "Check default vhost on HTTPS"
+              register: result
+              failed_when: not (result.status != 200 or result.status == -1)
+              ansible.builtin.uri:
+                url: "https://{{ inventory_hostname }}:{{ inv_add_apache_confs__https_listen_port }}/"
+                method: "GET"
+
+    - name: "Verify Docker"
+      when: inv_install_docker | default(false)
       block:
-        - name: "Verify Java -version, with custom binaries for Java {{ inv_java_version }}"
-          loop:
-            - "java-{{ inv_java_version }}"
-            - "/usr/bin/java-{{ inv_java_version }}"
-            - "/bin/java-{{ inv_java_version }}"
-          loop_control:
-            loop_var: java_call
-          register: java_version_output
-          changed_when: java_version_output.rc != 0
-          failed_when: "'build {{ inv_java_version }}' not in java_version_output.stderr"
-          ansible.builtin.command: "{{ java_call }} -version"
+        - name: "Check docker-compose command response"
+          register: output
+          changed_when: output.rc != 0
+          failed_when: output.rc != 0
+          ansible.builtin.command: "docker -v"
 
-        - name: "Verify Java -version, with custom binaries for Java 8"
+        - name: "Check docker-compose command response"
+          register: output
+          changed_when: output.rc != 0
+          failed_when: output.rc != 0
+          ansible.builtin.command: "docker-compose -v"
+
+        - name: "Check Docker insecure registries"
+          when: inv_install_docker__insecure_registries is defined
+          block:
+            - name: "Check Docker registries file"
+              register: file_check
+              failed_when: not file_check.stat.exists
+              ansible.builtin.stat:
+                path: "/etc/docker/daemon.json"
+
+            - name: "Check if insecure registries are in the /etc/docker/daemon.json file"
+              loop: "{{ inv_install_docker__insecure_registries }}"
+              loop_control:
+                loop_var: registry
+              register: registry_state
+              failed_when: registry_state.rc != 0
+              changed_when: registry_state.rc != 0
+              ansible.builtin.command: "grep -q {{ registry }} /etc/docker/daemon.json"
+
+    - name: "Verify Java"
+      when: inv_install_java | default(false)
+      block:
+        - name: "Verify Java -version, with alternative / default"
+          register: install_java__version_output
+          changed_when: install_java__version_output.rc != 0
+          failed_when: "'build {{ inv_install_java__version }}' not in install_java__version_output.stderr"
+          ansible.builtin.command: java -version
+
+        - name: "Verify Java -version, with custom binaries for Java {{ inv_install_java__version }}"
           loop:
-            - "java-8"
-            - "/usr/bin/java-8"
-            - "/bin/java-8"
+            - "java-{{ inv_install_java__version }}"
+            - "/usr/bin/java-{{ inv_install_java__version }}"
+            - "/bin/java-{{ inv_install_java__version }}"
           loop_control:
-            loop_var: java_call
-          register: java_version_output
-          changed_when: java_version_output.rc != 0
-          failed_when: "'build 1.8' not in java_version_output.stderr"
-          ansible.builtin.command: "{{ java_call }} -version"
+            loop_var: install_java__call
+          register: install_java__version_output
+          changed_when: install_java__version_output.rc != 0
+          failed_when: "'build {{ inv_install_java__version }}' not in install_java__version_output.stderr"
+          ansible.builtin.command: "{{ install_java__call }} -version"
+
+    - name: "Verify Jenkins"
+      when: inv_install_jenkins | default(false)
+      block:
+        - name: "Check docker-compose command response"
+          register: output
+          changed_when: output.rc != 0
+          failed_when: output.rc != 0
+          ansible.builtin.command: "docker -v"
+
+        - name: "Check docker-compose command response"
+          register: output
+          changed_when: output.rc != 0
+          failed_when: output.rc != 0
+          ansible.builtin.command: "docker-compose -v"
+
+        - name: "Check Jenkins HTTP URL"
+          register: result
+          failed_when: result.status != 403
+          ansible.builtin.uri:
+            url: "http://{{ inventory_hostname }}:{{ inv_install_jenkins__port }}/"
+            method: "GET"
