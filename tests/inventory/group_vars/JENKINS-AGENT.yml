@@ -1,5 +1,5 @@
 ---
-inv_install_jenkins_agent: true
+inv_install_jenkins_agent: false
 
 inv_install_jenkins_agent__user: "jenkins"
 inv_install_jenkins_agent__group: "jenkins"
