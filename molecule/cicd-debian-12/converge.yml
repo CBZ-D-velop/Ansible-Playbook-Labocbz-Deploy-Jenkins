@@ -1,7 +1,0 @@
----
-- name: "Include labocbz.deploy_jenkins playbook"
-  tags:
-      - "labocbz.deploy_jenkins"
-  vars:
-    tower_env: "cicd-debian-12"
-  ansible.builtin.import_playbook: "../../playbook.yml"

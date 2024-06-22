@@ -2,12 +2,12 @@
 # Don't forget to keep this file updated
 # molecule/<scenario>/verify.yml
 - name: "Verify"
-  hosts: "cicd-debian-11"
+  hosts: "cicd-docker-dind"
   gather_facts: false
   tasks:
 
     - name: "Verify Apache"
-      when: inv_install_jenkins_agent | default(false)
+      when: inv_install_apache | default(false)
       block:
         - name: "Get Apache2 service current state"
           register: install_apache__service_status

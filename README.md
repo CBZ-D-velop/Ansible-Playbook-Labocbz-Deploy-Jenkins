@@ -30,7 +30,7 @@ In summary, this comprehensive Ansible playbook addresses the installation and c
 
 ## Deployment diagramm
 
-![](./assets/Ansible-Playbook-Labocbz-Deploy-Jenkins.drawio.svg)
+![Ansible-Playbook-Labocbz-Deploy-Jenkins](./assets/Ansible-Playbook-Labocbz-Deploy-Jenkins.drawio.svg)
 
 Here is a possible deployment example with this playbook. The components involved are Apache2, Jenkins, Docker, and Watchtower. We observe that clients access Jenkins through Apache2, which acts as an SSL/TLS proxy. An agent installed on the second host, communication are donne with SSL and TCP socket.
 
@@ -41,7 +41,6 @@ Here is a possible deployment example with this playbook. The components involve
 You have to run multiples tests. *tests with an # are mandatory*
 
 ```MARKDOWN
-# lint
 # syntax
 # converge
 # idempotence
@@ -66,7 +65,6 @@ yamllint -c ./.yamllint .
 ansible-lint --config=./.ansible-lint .
 
 # Execute and test your playbook
-molecule lint
 molecule create
 molecule list
 molecule converge
@@ -106,7 +104,7 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * First init of this playbook with the bootstrap_playbook playbook by Lord Robin Crombez
 
-### 2024-01-05: 
+### 2024-01-05: Advance
 
 * Playbook install Apache2, Docker, Jenkins
 * Need to get the Jenkins password on log after isntall for first launch
@@ -117,6 +115,14 @@ Here you can put your change to keep a trace of your work and decisions.
 * Added support for new CI base
 * Edit all vars with __
 * Tested and validated on Docker
+
+### 2024-05-19: New CI
+
+* Added Markdown lint to the CICD
+* Rework all Docker images
+* Change CICD vars convention
+* New workers
+* Removed all automation based on branch
 
 ## Authors
 

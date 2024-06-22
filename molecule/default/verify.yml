@@ -7,7 +7,7 @@
   tasks:
 
     - name: "Verify Apache"
-      when: inv_install_jenkins_agent | default(false)
+      when: inv_install_apache | default(false)
       block:
         - name: "Get Apache2 service current state"
           register: install_apache__service_status
